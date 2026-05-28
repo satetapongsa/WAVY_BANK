@@ -1,151 +1,163 @@
+// app/page.tsx
 "use client";
-import { useState, useEffect } from "react";
-import * as storage from "@/app/lib/storage";
-import { Lock, User, LogIn, Loader2, Landmark, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Lock, User, Eye, EyeOff, ShieldCheck, Waves, Landmark } from "lucide-react";
 
 export default function LoginPage() {
-  const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
+  const [error, setError] = useState("");
   const [shake, setShake] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // Reset login status on mount
     localStorage.removeItem("isAdmin");
     setMounted(true);
   }, []);
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
+    if (!username || !password) {
+      setError("กรุณากรอกชื่อผู้ใช้งานและรหัสผ่าน");
+      triggerShake();
+      return;
+    }
+
+    // Official admin checking
     if (username === "admin" && (password === "admins" || password === "887624")) {
       localStorage.setItem("isAdmin", "true");
-      window.location.href = "/dashboard";
+      router.push("/overview");
     } else {
-      setShake(true);
-      setTimeout(() => setShake(false), 500);
+      setError("ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง");
+      triggerShake();
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    const { error } = await storage.simulateGoogleLogin();
-    if (error) {
-      alert(error.message);
-      setLoading(false);
-    }
+  const triggerShake = () => {
+    setShake(true);
+    setTimeout(() => setShake(false), 500);
   };
+
+  if (!mounted) return null;
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden">
-      {/* Animated Background */}
-      <div className="animated-bg grid-bg" />
-
-      {/* Floating Orbs */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div style={{
-          position: 'absolute', top: '15%', left: '10%', width: 300, height: 300,
-          background: 'radial-gradient(circle, rgba(79,156,249,0.08) 0%, transparent 70%)',
-          borderRadius: '50%', filter: 'blur(40px)',
-          animation: 'bgPulse 8s ease-in-out infinite'
-        }} />
-        <div style={{
-          position: 'absolute', bottom: '20%', right: '15%', width: 250, height: 250,
-          background: 'radial-gradient(circle, rgba(63,185,80,0.06) 0%, transparent 70%)',
-          borderRadius: '50%', filter: 'blur(40px)',
-          animation: 'bgPulse 12s ease-in-out infinite reverse'
-        }} />
-      </div>
-
-      {/* Login Card */}
-      <div className={`relative z-10 w-full max-w-md ${mounted ? '' : 'opacity-0'}`}>
-        
-        {/* Logo Section */}
-        <div className="text-center mb-8" style={{ animationFillMode: 'forwards' }}>
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
-               style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', boxShadow: '0 8px 32px rgba(59,130,246,0.4)' }}>
-            <Landmark size={28} className="text-white" />
+    <div className="min-h-[85vh] flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50/50">
+      <div className={`w-full max-w-md space-y-8 animate-fade-in-up ${shake ? "animate-shake" : ""}`}>
+        {/* Brand/Emblem */}
+        <div className="flex flex-col items-center text-center">
+          <div className="w-16 h-16 bg-sky-600 rounded-2xl flex items-center justify-center shadow-lg border border-sky-500/20 mb-4 animate-pulse">
+            <Waves size={32} className="text-white" />
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-glow-blue" style={{ color: '#f0f6fc' }}>
-            WAVY BANK
-          </h1>
-          <p className="text-sm mt-1" style={{ color: '#8b949e' }}>
-            Secure Digital Banking Platform
+          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+            WAVY <span className="text-sky-600 font-black">BANK</span>
+          </h2>
+          <p className="mt-1.5 text-sm text-slate-500 font-medium">
+            ระบบจัดการธุรกรรมและข้อมูลบัญชีลูกค้าภายในองค์กร (Admin Console)
           </p>
         </div>
 
-        {/* Card */}
-        <div className="glass rounded-2xl p-8"
-             style={{ boxShadow: '0 8px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(79,156,249,0.1)' }}>
+        {/* Login Card */}
+        <div className="bg-white py-8 px-6 sm:px-10 border border-slate-200 shadow-xl rounded-2xl relative overflow-hidden">
+          <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-sky-500 via-sky-600 to-indigo-600" />
+          
+          <div className="mb-6 flex items-center gap-2">
+            <ShieldCheck size={18} className="text-sky-600" />
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+              Administrative Access
+            </span>
+          </div>
 
-          {/* Admin Form */}
-          <div className="mb-6" style={{ animationFillMode: 'forwards' }}>
-            <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#8b949e' }}>
-              Administrator Access
-            </p>
-            <form onSubmit={handleAdminLogin} className="space-y-3">
-              <div className="relative">
-                <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: '#484f58' }} />
+          <form className="space-y-5" onSubmit={handleAdminLogin}>
+            {/* Username Input */}
+            <div>
+              <label className="bank-label">ชื่อผู้ดูแลระบบ</label>
+              <div className="relative rounded-md shadow-xs">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <User size={16} />
+                </div>
                 <input
                   type="text"
-                  placeholder="Username"
-                  className="input-dark pl-12"
+                  required
                   value={username}
-                  onChange={e => setUsername(e.target.value)}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="bank-input pl-10"
+                  placeholder="เช่น admin"
                 />
               </div>
-              <div className="relative">
-                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: '#484f58' }} />
+            </div>
+
+            {/* Password Input */}
+            <div>
+              <label className="bank-label">รหัสผ่านบัญชี</label>
+              <div className="relative rounded-md shadow-xs">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Lock size={16} />
+                </div>
                 <input
                   type={showPwd ? "text" : "password"}
-                  placeholder="Password"
-                  className="input-dark pl-12 pr-12"
+                  required
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="bank-input pl-10 pr-10"
+                  placeholder="ป้อนรหัสผ่านสำนักงานใหญ่"
                 />
-                <button type="button" onClick={() => setShowPwd(!showPwd)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors"
-                        style={{ color: '#484f58' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowPwd(!showPwd)}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                >
                   {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              <button type="submit"
-                      className="w-full btn-shimmer font-bold py-3 rounded-xl text-sm transition-all duration-200 flex items-center justify-center gap-2"
-                      style={{
-                        background: 'linear-gradient(135deg, #1e293b, #0f172a)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        color: '#f0f6fc',
-                        boxShadow: '0 4px 16px rgba(0,0,0,0.4)'
-                      }}
-                      onMouseEnter={e => {
-                        (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(79,156,249,0.4)';
-                        (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 24px rgba(0,0,0,0.5), 0 0 0 1px rgba(79,156,249,0.2)';
-                      }}
-                      onMouseLeave={e => {
-                        (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.1)';
-                        (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 16px rgba(0,0,0,0.4)';
-                      }}>
-                <ShieldCheck size={16} />
-                Admin Login
-              </button>
-            </form>
-          </div>
+            </div>
 
-          {/* Divider */}
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 bg-rose-50 border border-rose-100 rounded-lg text-xs font-semibold text-rose-600 animate-fade-in flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <div>
+              <button
+                type="submit"
+                className="w-full flex justify-center items-center gap-2 py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-all active:scale-98"
+              >
+                <ShieldCheck size={16} />
+                เข้าสู่ระบบคอนโซลควบคุม
+              </button>
+            </div>
+          </form>
         </div>
 
-        {/* Footer */}
-        <p className="text-center text-xs mt-6" 
-           style={{ color: '#484f58', animationFillMode: 'forwards' }}>
-          🔒 Protected by 256-bit TLS Encryption · WAVY BANK © 2025
-        </p>
+        {/* Security Disclaimers */}
+        <div className="text-center space-y-2">
+          <p className="text-xs text-slate-400 flex items-center justify-center gap-1.5">
+            <Landmark size={12} />
+            ระบบธนาคารดิจิทัล WAVY BANK · มีความปลอดภัยตามมาตรฐาน TLS/AES 256-bit
+          </p>
+          <p className="text-[10px] text-slate-400/80">
+            สงวนลิขสิทธิ์ © 2026 WAVY BANK Public Company Limited. การเข้าใช้บริการระบบนี้เฉพาะพนักงานที่ได้รับอนุญาตเท่านั้น
+          </p>
+        </div>
       </div>
 
       <style>{`
         @keyframes shakeX {
           0%, 100% { transform: translateX(0); }
-          10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); }
-          20%, 40%, 60%, 80% { transform: translateX(6px); }
+          15%, 45%, 75% { transform: translateX(-6px); }
+          30%, 60%, 90% { transform: translateX(6px); }
+        }
+        .animate-shake {
+          animation: shakeX 0.4s ease-in-out;
         }
       `}</style>
     </div>

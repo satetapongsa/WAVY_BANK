@@ -7,6 +7,7 @@ interface CardProps {
   className?: string;
   elevated?: boolean;
   noPadding?: boolean;
+  style?: React.CSSProperties;
 }
 
 export default function Card({
@@ -14,16 +15,20 @@ export default function Card({
   className = "",
   elevated = false,
   noPadding = false,
+  style,
 }: CardProps) {
   const classes = [
-    "glass-card",
-    elevated ? "glass-elevated" : "",
-    noPadding ? "!p-0" : "",
-    "animate-fade-in-up",
+    "bg-white border border-slate-200/80 rounded-xl animate-fade-in-up",
+    elevated ? "shadow-md" : "shadow-sm",
+    noPadding ? "p-0" : "p-6",
     className,
   ]
     .filter(Boolean)
     .join(" ");
 
-  return <div className={classes}>{children}</div>;
+  return (
+    <div className={classes} style={style}>
+      {children}
+    </div>
+  );
 }

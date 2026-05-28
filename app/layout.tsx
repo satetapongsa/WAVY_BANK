@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/app/components/NavBar";
+import AuthGuard from "@/app/components/AuthGuard";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -9,9 +10,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "WAVY BANK — Secure Digital Banking",
-  description: "WAVY BANK — ระบบธนาคารดิจิทัลที่ปลอดภัย มีประสิทธิภาพ และทันสมัย",
-  keywords: "wavy bank, digital banking, secure banking, online banking",
+  title: "WAVY BANK — Secure Digital Banking Portal",
+  description: "WAVY BANK — ระบบธนาคารดิจิทัลที่ปลอดภัย มีประสิทธิภาพ และเรียบหรูสากล สำหรับการบริหารจัดการในองค์กร",
+  keywords: "wavy bank, digital banking, secure banking, online banking, admin portal",
 };
 
 export default function RootLayout({
@@ -21,22 +22,19 @@ export default function RootLayout({
     <html lang="th">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap"
-          rel="stylesheet"
-        />
       </head>
-      <body className={`${inter.className} grid-bg`}>
-        {/* Navigation Bar */}
-        <NavBar />
-        {/* Main content area */}
-        <main className="relative min-h-screen pt-20 pb-10">
-          <div className="page-container">
-            {children}
-          </div>
-        </main>
+      <body className={inter.className}>
+        <AuthGuard>
+          {/* Navigation Bar */}
+          <NavBar />
+          
+          {/* Main content area */}
+          <main className="min-h-screen pt-24 pb-16">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              {children}
+            </div>
+          </main>
+        </AuthGuard>
       </body>
     </html>
   );
