@@ -4,7 +4,7 @@ import { useState } from "react";
 import * as storage from "@/app/lib/storage";
 import Card from "@/app/components/Card";
 import Button from "@/app/components/Button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function AddClientPage() {
@@ -28,46 +28,96 @@ export default function AddClientPage() {
   };
 
   return (
-    <Card className="mt-6">
-      <button onClick={() => router.back()} className="flex items-center gap-1 text-sm mb-4" style={{ color: "#8b949e" }}>
-        <ArrowLeft size={14} /> ย้อนกลับ
+    <div className="max-w-lg mx-auto space-y-6">
+      {/* Back link */}
+      <button
+        onClick={() => router.back()}
+        className="flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors animate-fade-in"
+      >
+        <ArrowLeft size={16} />
+        ย้อนกลับ
       </button>
-      <h2 className="text-2xl font-bold mb-4 text-glow-blue" style={{ color: "#f0f6fc" }}>เพิ่มลูกค้า</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          placeholder="ชื่อ"
-          className="input-dark w-full"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          required
-        />
-        <input
-          type="email"
-          placeholder="อีเมล"
-          className="input-dark w-full"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="number"
-          placeholder="ยอดคงเหลือ"
-          className="input-dark w-full"
-          value={balance}
-          onChange={e => setBalance(parseFloat(e.target.value) || 0)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="ภูมิภาค"
-          className="input-dark w-full"
-          value={region}
-          onChange={e => setRegion(e.target.value)}
-          required
-        />
-        <Button type="submit" className="btn w-full">สร้างลูกค้า</Button>
-      </form>
-    </Card>
+
+      <Card elevated className="animate-fade-in-up">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="stat-icon">
+            <UserPlus size={18} />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">เพิ่มลูกค้าใหม่</h2>
+            <p className="text-xs text-[var(--text-muted)]">กรอกข้อมูลด้านล่างเพื่อสร้างบัญชีลูกค้า</p>
+          </div>
+        </div>
+
+        <div className="divider" />
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="text-xs font-semibold text-[var(--text-muted)] mb-1.5 block">
+              ชื่อลูกค้า
+            </label>
+            <input
+              type="text"
+              placeholder="เช่น สมชาย ใจดี"
+              className="input-dark"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-[var(--text-muted)] mb-1.5 block">
+              อีเมล
+            </label>
+            <input
+              type="email"
+              placeholder="email@example.com"
+              className="input-dark"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-[var(--text-muted)] mb-1.5 block">
+              ยอดคงเหลือเริ่มต้น (฿)
+            </label>
+            <input
+              type="number"
+              placeholder="0"
+              className="input-dark"
+              value={balance}
+              onChange={(e) => setBalance(parseFloat(e.target.value) || 0)}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-[var(--text-muted)] mb-1.5 block">
+              ภูมิภาค
+            </label>
+            <input
+              type="text"
+              placeholder="เช่น กรุงเทพฯ, เชียงใหม่"
+              className="input-dark"
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="divider" />
+
+          <Button type="submit" className="w-full" size="lg">
+            <UserPlus size={18} />
+            สร้างลูกค้า
+          </Button>
+        </form>
+      </Card>
+    </div>
   );
 }

@@ -1,23 +1,47 @@
 // app/components/NavBar.tsx
 "use client";
 import Link from "next/link";
-import { Home, Users, CreditCard, Settings } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { LayoutDashboard, Users, ArrowLeftRight, Settings, Waves } from "lucide-react";
+
+const links = [
+  { href: "/overview", label: "Overview", icon: LayoutDashboard },
+  { href: "/clients", label: "Clients", icon: Users },
+  { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
+  { href: "/settings", label: "Settings", icon: Settings },
+];
 
 export default function NavBar() {
+  const pathname = usePathname();
+
   return (
-    <nav className="glass fixed top-4 left-1/2 -translate-x-1/2 z-20 w-auto px-4 py-2 rounded-full flex items-center gap-6 shadow-lg">
-      <Link href="/overview" className="flex items-center gap-1 text-sm font-medium text-primary hover:text-white transition-colors">
-        <Home size={16} /> Overview
+    <nav className="nav-pill">
+      {/* Logo */}
+      <Link
+        href="/overview"
+        className="flex items-center gap-1.5 px-3 py-1.5 mr-2"
+      >
+        <Waves size={18} className="text-[var(--color-primary)]" />
+        <span className="text-sm font-bold text-gradient hidden sm:inline">WAVY</span>
       </Link>
-      <Link href="/clients" className="flex items-center gap-1 text-sm font-medium text-primary hover:text-white transition-colors">
-        <Users size={16} /> Clients
-      </Link>
-      <Link href="/transactions" className="flex items-center gap-1 text-sm font-medium text-primary hover:text-white transition-colors">
-        <CreditCard size={16} /> Transactions
-      </Link>
-      <Link href="/settings" className="flex items-center gap-1 text-sm font-medium text-primary hover:text-white transition-colors">
-        <Settings size={16} /> Settings
-      </Link>
+
+      {/* Divider */}
+      <div className="w-px h-5 bg-[rgba(255,255,255,0.1)] mr-1" />
+
+      {/* Nav Links */}
+      {links.map(({ href, label, icon: Icon }) => {
+        const isActive = pathname === href || pathname?.startsWith(href + "/");
+        return (
+          <Link
+            key={href}
+            href={href}
+            className={`nav-link ${isActive ? "nav-link-active" : ""}`}
+          >
+            <Icon size={15} />
+            <span className="hidden sm:inline">{label}</span>
+          </Link>
+        );
+      })}
     </nav>
   );
 }

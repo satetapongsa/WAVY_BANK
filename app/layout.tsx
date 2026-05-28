@@ -3,7 +3,10 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/app/components/NavBar";
 
-const inter = Inter({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700", "800", "900"] });
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+});
 
 export const metadata: Metadata = {
   title: "WAVY BANK — Secure Digital Banking",
@@ -20,18 +23,21 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap"
+          rel="stylesheet"
+        />
       </head>
-      <body className={inter.className}>
-  {/* Global animated background */}
-  <div className="grid-bg fixed inset-0 -z-10" />
-  {/* Navigation Bar */}
-  <NavBar />
-  {/* Main content area */}
-  <main className="relative min-h-screen pt-20 pb-10" style={{ background: "#080c14" }}>
-    {children}
-  </main>
-</body>
+      <body className={`${inter.className} grid-bg`}>
+        {/* Navigation Bar */}
+        <NavBar />
+        {/* Main content area */}
+        <main className="relative min-h-screen pt-20 pb-10">
+          <div className="page-container">
+            {children}
+          </div>
+        </main>
+      </body>
     </html>
   );
 }

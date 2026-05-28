@@ -4,57 +4,118 @@ import { useEffect, useState } from "react";
 import * as storage from "@/app/lib/storage";
 import Card from "@/app/components/Card";
 import Button from "@/app/components/Button";
-import { Trash2 } from "lucide-react";
+import { Trash2, ArrowLeftRight, Search } from "lucide-react";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<storage.Transaction[]>([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    setTransactions(storage.getTransactions());
+    const txs = storage.getTransactions().sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+    setTransactions(txs);
   }, []);
 
   const handleDelete = (id: number) => {
-    // Simple delete by filtering out; storage doesn't have delete function for tx, just re-set list
-    const newTxs = storage.getTransactions().filter(t => t.id !== id);
+    if (!confirm("ลบรายการธุรกรรมนี้?")) return;
+    const newTxs = storage.getTransactions().filter((t) => t.id !== id);
     storage.setTransactions(newTxs);
     setTransactions(newTxs);
   };
 
+  const filtered = transactions.filter(
+    (t) =>
+      (t.sender_account ?? "").includes(search) ||
+      (t.receiver_account ?? "").includes(search) ||
+      t.description.toLowerCase().includes(search.toLowerCase()) ||
+      (t.type ?? "").toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <Card className="mt-6">
-      <h2 className="text-2xl font-bold mb-4 text-glow-blue" style={{ color: "#f0f6fc" }}>Transactions</h2>
-      {transactions.length === 0 ? (
-        <p className="text-muted" style={{ color: "#8b949e" }}>No transactions found.</p>
-      ) : (
-        <table className="table-auto">
-          <thead>
-            <tr>
-              <th className="px-4 py-2" style={{ color: "#484f58" }}>ID</th>
-              <th className="px-4 py-2" style={{ color: "#484f58" }}>Time</th>
-              <th className="px-4 py-2" style={{ color: "#484f58" }}>From</th>
-              <th className="px-4 py-2" style={{ color: "#484f58" }}>To</th>
-              <th className="px-4 py-2" style={{ color: "#484f58" }}>Amount</th>
-              <th className="px-4 py-2" style={{ color: "#484f58" }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((t) => (
-              <tr key={t.id} className="border-b border-white/5">
-                <td className="px-4 py-2" style={{ color: "#8b949e" }}>{t.id}</td>
-                <td className="px-4 py-2" style={{ color: "#8b949e" }}>{new Date(t.created_at).toLocaleString('th-TH')}</td>
-                <td className="px-4 py-2" style={{ color: "#4f9cf9" }}>{t.sender_account ?? '-'}</td>
-                <td className="px-4 py-2" style={{ color: "#4f9cf9" }}>{t.receiver_account ?? '-'}</td>
-                <td className="px-4 py-2 font-bold" style={{ color: '#3fb950' }}>฿{Number(t.amount).toLocaleString()}</td>
-                <td className="px-4 py-2 flex gap-2">
-                  <Button onClick={() => handleDelete(t.id)} className="btn" style={{ background: "linear-gradient(135deg, #d73a49, #e55353)" }}>
-                    <Trash2 size={14} />
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </Card>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="page-header animate-fade-in-up">
+        <h1 className="page-title">Transactions</h1>
+        <p className="page-subtitle">ประวัติธุรกรรมทั้งหมด ({transactions.length} รายการ)</p>
+      </div>
+
+      {/* Search */}
+      <div className="relative animate-fade-in-up" style={{ animationDelay: "100ms" }}>
+        <Search
+          size={16}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-faint)]"
+        />
+        <input
+          type="text"
+          placeholder="ค้นหาบัญชี, ประเภท, หรือคำอธิบาย..."
+          className="input-dark !pl-10"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      {/* Table */}
+      <Card noPadding className="animate-fade-in-up" style={{ animationDelay: "200ms" }}>
+        {filtered.length === 0 ? (
+          <div className="empty-state p-8">
+            <ArrowLeftRight size={40} className="empty-state-icon mx-auto mb-3" />
+            <p className="text-[var(--text-muted)]">
+              {search ? "ไม่พบรายการที่ค้นหา" : "ยังไม่มีรายการธุรกรรม"}
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="table-premium">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                  <th className="text-right">Amount</th>
+                  <th className="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((t) => (
+                  <tr key={t.id}>
+                    <td className="text-xs text-[var(--text-muted)] whitespace-nowrap">
+                      {new Date(t.created_at).toLocaleString("th-TH")}
+                    </td>
+                    <td className="font-mono text-xs text-[var(--color-primary)]">
+                      {t.sender_account ?? "—"}
+                    </td>
+                    <td className="font-mono text-xs text-[var(--color-primary)]">
+                      {t.receiver_account ?? "—"}
+                    </td>
+                    <td>
+                      <span className="badge badge-info">{t.type || "Transfer"}</span>
+                    </td>
+                    <td className="text-[var(--text-secondary)] text-sm max-w-[200px] truncate">
+                      {t.description || "—"}
+                    </td>
+                    <td className="text-right font-bold text-[var(--color-success)] whitespace-nowrap">
+                      ฿{Number(t.amount).toLocaleString()}
+                    </td>
+                    <td className="text-right">
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        iconOnly
+                        onClick={() => handleDelete(t.id)}
+                      >
+                        <Trash2 size={14} />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+    </div>
   );
 }
